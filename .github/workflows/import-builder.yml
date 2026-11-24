@@ -90,12 +90,17 @@ jobs:
 
       - name: Push builder snapshot
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MIGRATION_TOKEN: ${{ secrets.MIGRATION_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
 
-          AUTH=$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)
+          if [ -z "$MIGRATION_TOKEN" ]; then
+            echo "ERROR: MIGRATION_TOKEN secret is missing or empty."
+            exit 1
+          fi
+
+          AUTH=$(printf 'x-access-token:%s' "$MIGRATION_TOKEN" | base64 -w0)
           HEADER="AUTHORIZATION: basic $AUTH"
 
           git -C "$RUNNER_TEMP/builder-snapshot" remote add origin \
