@@ -23,7 +23,6 @@ jobs:
 
       - name: Validate destination
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
@@ -37,12 +36,7 @@ jobs:
             exit 1
           fi
 
-          AUTH=$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)
-          HEADER="AUTHORIZATION: basic $AUTH"
-
-          REMOTE_BRANCHES=$(git \
-            -c http.https://github.com/.extraheader="$HEADER" \
-            ls-remote origin refs/heads/bore/v7.1)
+          REMOTE_BRANCHES=$(git ls-remote origin refs/heads/bore/v7.1)
 
           if [ -n "$REMOTE_BRANCHES" ]; then
             echo "ERROR: bore/v7.1 already exists in destination."
