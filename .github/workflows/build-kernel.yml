@@ -306,7 +306,7 @@ jobs:
             ./scripts/kconfig/merge_config.sh -m -O out "$BASE_CONFIG" "$DEVICE_CONFIG"
         fi
 
-        # Experimental 1000 Hz tick profile: merlin only, isolated from other devices.
+        # Experimental 1000 Hz tick profile: originally validated on merlin; device-specific testing is still required.
         if [ "${TICKRATE_1000:-false}" = "true" ]; then
             if [ "$KERNEL_ARCH" != "arm64" ]; then
                 echo "TICKRATE_1000 requires an ARM64 target"
