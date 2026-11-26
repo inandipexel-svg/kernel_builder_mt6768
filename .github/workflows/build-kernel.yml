@@ -2,6 +2,7 @@ name: Build Kernel
 on:
   push:
     branches:
+      - Astralis
       - bore-scheduler
       - test/spf-419-enabled
       - test/spf-419-disabled
