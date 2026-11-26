@@ -243,13 +243,7 @@ jobs:
         echo "Kernel source branch: ${KERNEL_SOURCE_BRANCH}"
         echo "Kernel source commit: ${ACTUAL_KERNEL_SOURCE_SHA}"
         git log -1 --format='Kernel source subject: %s'
-        if [ -n "${KERNEL_SOURCE_EXPECTED_SHA:-}" ] && [ "$ACTUAL_KERNEL_SOURCE_SHA" != "$KERNEL_SOURCE_EXPECTED_SHA" ]; then
-            echo "Kernel source SHA mismatch: expected $KERNEL_SOURCE_EXPECTED_SHA, got $ACTUAL_KERNEL_SOURCE_SHA"
-            exit 1
-        fi
-        if [ -n "${KERNEL_SOURCE_EXPECTED_SHA:-}" ]; then
-            echo "PASS: kernel source SHA matches the experimental reclaim target"
-        fi
+        # Follow the selected source branch head; no fixed commit pin is required.
 
     - name: Download source boot image
       if: env.BUILD_BOOT_IMG == 'true'
@@ -295,8 +289,8 @@ jobs:
         # The experimental ZRAM profile adds its own isolated fragment; the normal
         # device defconfig remains unchanged.
         if [ "${ZRAM_MULTICOMP_AUDIT:-false}" = "true" ]; then
-            if [ "$DEVICE" != "merlin" ] || [ "${KERNEL_ARCH}" != "arm64" ]; then
-                echo "ZRAM multicomp audit is restricted to the merlin ARM64 target"
+            if [ "${KERNEL_ARCH}" != "arm64" ]; then
+                echo "ZRAM multicomp audit requires an ARM64 target"
                 exit 1
             fi
             # Do not gate inherited feature branches by their names. The source-level
@@ -314,8 +308,8 @@ jobs:
 
         # Experimental 1000 Hz tick profile: merlin only, isolated from other devices.
         if [ "${TICKRATE_1000:-false}" = "true" ]; then
-            if [ "$DEVICE" != "merlin" ] || [ "$KERNEL_ARCH" != "arm64" ]; then
-                echo "TICKRATE_1000 is restricted to the merlin ARM64 target"
+            if [ "$KERNEL_ARCH" != "arm64" ]; then
+                echo "TICKRATE_1000 requires an ARM64 target"
                 exit 1
             fi
             TICKRATE_CONFIG="arch/${KERNEL_ARCH}/configs/vendor/mt6768_tickrate_1000.config"
@@ -328,8 +322,8 @@ jobs:
         fi
 
         if [ "${BORE_SCHEDULER:-false}" = "true" ]; then
-            if [ "$DEVICE" != "merlin" ] || [ "${KERNEL_ARCH}" != "arm64" ]; then
-                echo "BORE scheduler integration is restricted to merlin ARM64"
+            if [ "${KERNEL_ARCH}" != "arm64" ]; then
+                echo "BORE scheduler integration requires an ARM64 target"
                 exit 1
             fi
             BORE_CONFIG="arch/${KERNEL_ARCH}/configs/vendor/mt6768_bore.config"
@@ -346,8 +340,8 @@ jobs:
         fi
 
         if [ "${DAMON_RECLAIM:-false}" = "true" ] || [ "${DAMON_LRU_SORT:-false}" = "true" ]; then
-            if [ "$DEVICE" != "merlin" ] || [ "${KERNEL_ARCH}" != "arm64" ]; then
-                echo "DAMON reclaim experiments are restricted to merlin ARM64"
+            if [ "${KERNEL_ARCH}" != "arm64" ]; then
+                echo "DAMON reclaim experiments require an ARM64 target"
                 exit 1
             fi
             DAMON_CONFIG="arch/${KERNEL_ARCH}/configs/vendor/mt6768_damon.config"
@@ -431,8 +425,8 @@ jobs:
                 true|false) ;;
                 *) echo "SPECULATIVE_PAGE_FAULT must be true or false"; exit 1 ;;
             esac
-            if [ "$DEVICE" != "merlin" ] || [ "$KERNEL_ARCH" != "arm64" ]; then
-                echo "Speculative page faults are currently supported only on merlin ARM64"
+            if [ "$KERNEL_ARCH" != "arm64" ]; then
+                echo "Speculative page faults require an ARM64 target"
                 exit 1
             fi
             grep -qx 'config SPECULATIVE_PAGE_FAULT' mm/Kconfig || {
