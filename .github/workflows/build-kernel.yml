@@ -8,6 +8,7 @@ on:
       - test/combo-lru-reclaim
       - test/samsung-oem-tuning
       - test/stuff
+      - oneui/lsm-4.19
   workflow_dispatch:
     inputs:
       select_device:
@@ -278,6 +279,23 @@ jobs:
 
         BASE_CONFIG="arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG_BASE }}"
         DEVICE_CONFIG="arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG_FRAGMENT_DIR }}/${DEVICE}.config"
+
+        # The OneUI source has the merlin DTS but does not ship a vendor/merlin.config.
+        # Generate only the device-selection fragment required by this builder.
+        if [ "$DEVICE" = "merlin" ] && [ ! -f "$DEVICE_CONFIG" ]; then
+            MERLIN_DTS="arch/${KERNEL_ARCH}/boot/dts/mediatek/merlin.dts"
+            if [ ! -f "$MERLIN_DTS" ]; then
+                echo "Missing merlin DTS: $MERLIN_DTS"
+                exit 1
+            fi
+            mkdir -p "$(dirname "$DEVICE_CONFIG")"
+            cat > "$DEVICE_CONFIG" <<'MERLIN_CONFIG'
+CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES="mediatek/merlin"
+CONFIG_TARGET_PRODUCT_MERLINCOMMON=y
+CONFIG_ARCH_MTK_PROJECT="merlin"
+MERLIN_CONFIG
+            echo "Generated OneUI merlin device fragment: $DEVICE_CONFIG"
+        fi
 
         if [ ! -f "$BASE_CONFIG" ]; then
             echo "Missing base config: $BASE_CONFIG"
