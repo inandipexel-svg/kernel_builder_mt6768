@@ -8,6 +8,7 @@ on:
       - test/combo-lru-reclaim
       - test/samsung-oem-tuning
       - test/stuff
+      - bpf/test
   workflow_dispatch:
     inputs:
       select_device:
