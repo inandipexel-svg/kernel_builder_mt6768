@@ -290,10 +290,10 @@ jobs:
             fi
             mkdir -p "$(dirname "$DEVICE_CONFIG")"
             cat > "$DEVICE_CONFIG" <<'MERLIN_CONFIG'
-CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES="mediatek/merlin"
-CONFIG_TARGET_PRODUCT_MERLINCOMMON=y
-CONFIG_ARCH_MTK_PROJECT="merlin"
-MERLIN_CONFIG
+        CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES="mediatek/merlin"
+        CONFIG_TARGET_PRODUCT_MERLINCOMMON=y
+        CONFIG_ARCH_MTK_PROJECT="merlin"
+        MERLIN_CONFIG
             echo "Generated OneUI merlin device fragment: $DEVICE_CONFIG"
         fi
 
