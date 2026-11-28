@@ -291,10 +291,20 @@ jobs:
             mkdir -p "$(dirname "$DEVICE_CONFIG")"
             cat > "$DEVICE_CONFIG" <<'MERLIN_CONFIG'
         CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES="mediatek/merlin"
-        CONFIG_TARGET_PRODUCT_MERLINCOMMON=y
+        CONFIG_MTK_REVERSE_CHG_ENABLE=y
+        CONFIG_TARGET_PRODUCT_MERLIN=y
         CONFIG_ARCH_MTK_PROJECT="merlin"
+        CONFIG_CUSTOM_KERNEL_LCM="nt36672A_fhdp_dsi_vdo_tianma ft8719_fhdp_dsi_vdo_xinli nt36672A_fhdp_dsi_vdo_tianma_G6 nt36672D_fhdp_dsi_vdo_tianma"
+        CONFIG_PSI=y
         MERLIN_CONFIG
             echo "Generated OneUI merlin device fragment: $DEVICE_CONFIG"
+        fi
+
+        # A Merlin build without a selected LCM panel is invalid: mt65xx_lcm_list.c
+        # intentionally rejects an empty driver list at compile time.
+        if ! grep -q '^CONFIG_CUSTOM_KERNEL_LCM=".*nt36672A_fhdp_dsi_vdo_tianma' "$DEVICE_CONFIG"; then
+            echo "Merlin device fragment is missing the required LCM panel selection"
+            exit 1
         fi
 
         if [ ! -f "$BASE_CONFIG" ]; then
